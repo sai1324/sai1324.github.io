@@ -112,13 +112,13 @@
             </div>
             <h1>链接参数错误</h1>
             <p>请检查URL中是否包含有效的店铺码参数（格式：?shop=店铺码）</p>
-            <p>示例：<code>https://页面地址.html?shop=8oUJ80ng2sMdbpWRscL7vAI</code></p>
+            <p>示例：<code>https://页面地址.html?shop=r3uE37mS0B4REbLiEsa3qAI</code></p>
         </div>
     </div>
 
     <script>
-        // 目标链接模板（仅替换 poi_id_str 参数，使用 {shopCode} 作为占位符）
-        const TARGET_URL_TEMPLATE = "https://dp.jekyll.top/dp.html?url=dianping%3A%2F%2Fwaimai.dianping.com%2Ftakeout%2Ffoods%3Fpoi_id_str%3D{shopCode}%26allowance_alliance_scenes%3D1100%26poi_id%3D-100";
+        // 目标链接模板 - 直接使用 dianping:// 协议
+        const TARGET_URL_TEMPLATE = "dianping://waimai.dianping.com/takeout/foods?poi_id_str={shopCode}&allowance_alliance_scenes=1100&poi_id=-100";
         
         // 从URL参数中读取店铺码（参数名固定为 "shop"）
         const urlParams = new URLSearchParams(window.location.search);
@@ -127,14 +127,22 @@
         // 处理跳转逻辑
         if (shopCode) {
             // 1. 替换模板中的占位符为实际店铺码
-            const finalTargetUrl = TARGET_URL_TEMPLATE.replace("{shopCode}", encodeURIComponent(shopCode));
+            const finalTargetUrl = TARGET_URL_TEMPLATE.replace("{shopCode}", shopCode);
             
             // 2. 设置手动跳转按钮链接
             document.getElementById("manualJump").href = finalTargetUrl;
             
             // 3. 自动跳转（延迟1秒，给用户感知时间）
             setTimeout(() => {
+                // 尝试唤醒App
                 window.location.href = finalTargetUrl;
+                
+                // 如果3秒后仍未跳转成功，降级到H5页面
+                setTimeout(() => {
+                    if (!document.hidden) {
+                        window.location.href = `https://waimai.dianping.com/shop/${shopCode}`;
+                    }
+                }, 3000);
             }, 1000);
         } else {
             // 无店铺码参数时显示错误状态
